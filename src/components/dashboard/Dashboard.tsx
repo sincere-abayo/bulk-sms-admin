@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
+import { useTheme } from '../../contexts/ThemeContext';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -59,6 +60,37 @@ interface DashboardStats {
 }
 
 const Dashboard: React.FC = () => {
+  const { resolvedTheme } = useTheme();
+
+  const chartOptions = useMemo(() => ({
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        labels: {
+          color: resolvedTheme === 'dark' ? '#e2e8f0' : '#1e293b',
+        },
+      },
+    },
+    scales: {
+      x: {
+        grid: {
+          color: resolvedTheme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+        },
+        ticks: {
+          color: resolvedTheme === 'dark' ? '#94a3b8' : '#64748b',
+        },
+      },
+      y: {
+        grid: {
+          color: resolvedTheme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+        },
+        ticks: {
+          color: resolvedTheme === 'dark' ? '#94a3b8' : '#64748b',
+        },
+      },
+    },
+  }), [resolvedTheme]);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -202,17 +234,17 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="w-full max-w-[99%] mx-auto px-2 sm:px-4 py-4">
+    <div className={`p-4 md:p-6 space-y-6 bg-background text-foreground`}>
       {/* Header */}
       <div className="flex flex-col space-y-4 mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Dashboard Overview</h1>
-            <p className="text-gray-600 mt-1 text-sm md:text-base">Welcome back! Here's what's happening with your platform.</p>
+            <h1 className={`text-2xl md:text-3xl font-bold ${resolvedTheme === 'dark' ? 'text-gray-200' : 'text-gray-900'}`}>Dashboard Overview</h1>
+            <p className={`text-gray-600 mt-1 text-sm md:text-base ${resolvedTheme === 'dark' ? 'text-gray-400' : ''}`}>Welcome back! Here's what's happening with your platform.</p>
           </div>
           <div className="flex items-center space-x-3">
             <button 
-              className="flex items-center space-x-2 bg-white border border-gray-300 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200 shadow-sm"
+              className={`flex items-center space-x-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors duration-200 shadow-sm`}
               onClick={fetchDashboardStats}
             >
               <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
@@ -261,10 +293,10 @@ const Dashboard: React.FC = () => {
       {/* Main Content Area */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
         {/* Analytics Section */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-card rounded-xl shadow-sm p-6 border border-border">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">User Growth</h3>
-            <span className="text-sm text-gray-500">Last 6 months</span>
+            <h3 className={`text-lg font-semibold ${resolvedTheme === 'dark' ? 'text-gray-200' : 'text-gray-900'}`}>User Growth</h3>
+            <span className={`text-sm ${resolvedTheme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>Last 6 months</span>
           </div>
           <div className="h-64">
             <Bar
@@ -277,37 +309,16 @@ const Dashboard: React.FC = () => {
                   borderRadius: 4,
                 }]
               }}
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                  legend: {
-                    display: false,
-                  },
-                },
-                scales: {
-                  y: {
-                    beginAtZero: true,
-                    grid: {
-                      color: 'rgba(0, 0, 0, 0.05)',
-                    },
-                  },
-                  x: {
-                    grid: {
-                      display: false,
-                    },
-                  },
-                },
-              }}
+              options={chartOptions}
             />
           </div>
         </div>
 
         {/* Recent Activity */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-card rounded-xl shadow-sm p-6 border border-border">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">Recent Activity</h3>
-            <span className="text-sm text-blue-600 hover:text-blue-800 cursor-pointer">View All</span>
+            <h3 className={`text-lg font-semibold ${resolvedTheme === 'dark' ? 'text-gray-200' : 'text-gray-900'}`}>Recent Activity</h3>
+            <span className={`text-sm text-blue-600 hover:text-blue-800 cursor-pointer ${resolvedTheme === 'dark' ? 'text-gray-400' : ''}`}>View All</span>
           </div>
           <div className="space-y-4">
             {[
@@ -316,66 +327,66 @@ const Dashboard: React.FC = () => {
               { id: 3, user: 'Robert Johnson', action: 'created a contact list', time: '1 hour ago', status: 'info' },
               { id: 4, user: 'System', action: 'scheduled maintenance', time: '2 hours ago', status: 'warning' },
             ].map((item) => (
-              <div key={item.id} className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg transition-colors">
+              <div key={item.id} className="flex items-start space-x-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-900 rounded-lg transition-colors">
                 <div className={`flex-shrink-0 w-2 h-2 mt-2 rounded-full ${
                   item.status === 'success' ? 'bg-green-500' : 
                   item.status === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
                 }`}></div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900">{item.user}</p>
-                  <p className="text-sm text-gray-600">{item.action}</p>
+                  <p className={`text-sm font-medium ${resolvedTheme === 'dark' ? 'text-gray-200' : 'text-gray-900'}`}>{item.user}</p>
+                  <p className={`text-sm ${resolvedTheme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>{item.action}</p>
                 </div>
-                <span className="text-xs text-gray-400">{item.time}</span>
+                <span className={`text-xs ${resolvedTheme === 'dark' ? 'text-gray-400' : 'text-gray-400'}`}>{item.time}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-card rounded-xl shadow-sm p-6 border border-border">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">Quick Actions</h3>
-            <span className="text-sm text-gray-500">Frequently used</span>
+            <h3 className={`text-lg font-semibold ${resolvedTheme === 'dark' ? 'text-gray-200' : 'text-gray-900'}`}>Quick Actions</h3>
+            <span className={`text-sm ${resolvedTheme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>Frequently used</span>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <button className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-              <div className="p-3 bg-blue-100 rounded-lg mb-2">
+            <button className={`flex flex-col items-center p-4 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors`}>
+              <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg mb-2">
                 <FiUsers className="w-5 h-5 text-blue-600" />
               </div>
-              <span className="text-sm font-medium text-gray-900">Manage Users</span>
+              <span className={`text-sm font-medium ${resolvedTheme === 'dark' ? 'text-gray-200' : 'text-gray-900'}`}>Manage Users</span>
             </button>
-            <button className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-              <div className="p-3 bg-green-100 rounded-lg mb-2">
+            <button className={`flex flex-col items-center p-4 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors`}>
+              <div className="p-3 bg-green-100 dark:bg-green-900 rounded-lg mb-2">
                 <FiMessageSquare className="w-5 h-5 text-green-600" />
               </div>
-              <span className="text-sm font-medium text-gray-900">Send Message</span>
+              <span className={`text-sm font-medium ${resolvedTheme === 'dark' ? 'text-gray-200' : 'text-gray-900'}`}>Send Message</span>
             </button>
-            <button className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-              <div className="p-3 bg-purple-100 rounded-lg mb-2">
+            <button className={`flex flex-col items-center p-4 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors`}>
+              <div className="p-3 bg-purple-100 dark:bg-purple-900 rounded-lg mb-2">
                 <FiDollarSign className="w-5 h-5 text-purple-600" />
               </div>
-              <span className="text-sm font-medium text-gray-900">Add Funds</span>
+              <span className={`text-sm font-medium ${resolvedTheme === 'dark' ? 'text-gray-200' : 'text-gray-900'}`}>Add Funds</span>
             </button>
-            <button className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-              <div className="p-3 bg-amber-100 rounded-lg mb-2">
+            <button className={`flex flex-col items-center p-4 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors`}>
+              <div className="p-3 bg-amber-100 dark:bg-amber-900 rounded-lg mb-2">
                 <FiSettings className="w-5 h-5 text-amber-600" />
               </div>
-              <span className="text-sm font-medium text-gray-900">Settings</span>
+              <span className={`text-sm font-medium ${resolvedTheme === 'dark' ? 'text-gray-200' : 'text-gray-900'}`}>Settings</span>
             </button>
           </div>
         </div>
       </div>
 
       {/* System Status */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-6">
+      <div className="bg-card rounded-xl shadow-sm p-6 border border-border mt-6">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-semibold text-gray-900">System Status</h3>
+          <h3 className={`text-lg font-semibold ${resolvedTheme === 'dark' ? 'text-gray-200' : 'text-gray-900'}`}>System Status</h3>
           <div className="flex items-center space-x-2">
             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-            <span className="text-sm text-green-600 font-medium">All Systems Operational</span>
+            <span className={`text-sm text-green-600 font-medium ${resolvedTheme === 'dark' ? 'text-gray-400' : ''}`}>All Systems Operational</span>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-foreground">
           {[
             { service: 'SMS Gateway', status: 'operational', uptime: '99.9%', responseTime: '120ms' },
             { service: 'Database', status: 'operational', uptime: '99.8%', responseTime: '45ms' },

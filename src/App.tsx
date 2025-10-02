@@ -1,20 +1,22 @@
-import React, { useState, useEffect } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 
 // Components
-import Login from "./components/auth/Login";
-import Dashboard from "./components/dashboard/Dashboard";
-import Users from "./components/users/Users";
-import Messages from "./components/messages/Messages";
-import Analytics from "./components/analytics/Analytics";
-import Settings from "./components/settings/Settings";
-// import Sidebar from "./components/layout/Sidebar";
-import Sidebar from "./components/layout/Sidebar";
-import Header from "./components/layout/Header";
+import Login from './components/auth/Login';
+import Dashboard from './components/dashboard/Dashboard';
+import Users from './components/users/Users';
+import Messages from './components/messages/Messages';
+import Analytics from './components/analytics/Analytics';
+import Settings from './components/settings/Settings';
+import Sidebar from './components/layout/Sidebar';
+import Header from './components/layout/Header';
 
 // Context
-import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import { ThemeProvider } from "./contexts/ThemeContext";
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
+
+// Styles
+import './app.css';
 
 // Types
 interface User {
@@ -41,12 +43,12 @@ function AppContent() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen bg-background flex overflow-hidden">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <div className="flex-1 flex flex-col lg:pl-72">
+      <div className="flex-1 flex flex-col lg:pl-64">
         <Header onMenuClick={() => setSidebarOpen(true)} />
-        <main className="flex-1 bg-gray-50 p-6">
-          <div className="max-w-7xl mx-auto">
+        <main className="flex-1 bg-gray-50 overflow-auto">
+          <div className="w-full h-full">
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<Dashboard />} />
