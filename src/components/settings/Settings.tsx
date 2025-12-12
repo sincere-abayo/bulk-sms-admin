@@ -19,6 +19,7 @@ import {
   FiLock,
   FiEye,
   FiEyeOff,
+  FiSmartphone,
 } from "react-icons/fi";
 
 interface SystemSettings {
@@ -57,6 +58,12 @@ interface SystemSettings {
     adminEmail: string;
     lowBalanceThreshold: number;
     systemAlerts: boolean;
+  };
+  appDownloads: {
+    androidUrl: string;
+    iosUrl: string;
+    enableAndroid: boolean;
+    enableIos: boolean;
   };
 }
 
@@ -99,6 +106,13 @@ const Settings: React.FC = () => {
       lowBalanceThreshold: 1000,
       systemAlerts: true,
     },
+    appDownloads: {
+      androidUrl:
+        "https://play.google.com/store/apps/details?id=com.bulksmspro.app",
+      iosUrl: "https://apps.apple.com/app/bulksmspro/id123456789",
+      enableAndroid: true,
+      enableIos: true,
+    },
   });
 
   const [loading, setLoading] = useState(false);
@@ -118,9 +132,16 @@ const Settings: React.FC = () => {
   const loadSettings = async () => {
     setLoading(true);
     try {
-      // In a real app, this would fetch from the API
-      // For now, we'll use the default settings
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
+      const response = await fetch(
+        "http://localhost:4000/api/auth/admin/app-settings"
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setSettings((prev) => ({
+          ...prev,
+          appDownloads: data.appDownloads,
+        }));
+      }
     } catch (error) {
       console.error("Error loading settings:", error);
     } finally {
@@ -131,18 +152,50 @@ const Settings: React.FC = () => {
   const saveSettings = async () => {
     setSaving(true);
     try {
-      // In a real app, this would save to the API
-      await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate API call
+      const response = await fetch(
+        "http://localhost:4000/api/auth/admin/app-settings",
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("admin_token")}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            appDownloads: {
+              androidUrl: settings.appDownloads.androidUrl,
+              iosUrl: settings.appDownloads.iosUrl,
+              enableAndroid: settings.appDownloads.enableAndroid,
+              enableIos: settings.appDownloads.enableIos,
+            },
+          }),
+        }
+      );
 
-      setSaveMessage({ type: "success", text: "Settings saved successfully!" });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to save settings");
+      }
+
+      const savedSettings = await response.json();
+
+      // Update local state with saved settings
+      setSettings((prev) => ({
+        ...prev,
+        appDownloads: savedSettings.appDownloads,
+      }));
+
+      setSaveMessage({
+        type: "success",
+        text: "App download settings saved successfully!",
+      });
       setTimeout(() => setSaveMessage(null), 3000);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving settings:", error);
       setSaveMessage({
         type: "error",
-        text: "Failed to save settings. Please try again.",
+        text: error.message || "Failed to save settings. Please try again.",
       });
-      setTimeout(() => setSaveMessage(null), 3000);
+      setTimeout(() => setSaveMessage(null), 5000);
     } finally {
       setSaving(false);
     }
@@ -183,6 +236,11 @@ const Settings: React.FC = () => {
       id: "notifications",
       label: "Notifications",
       icon: <FiMail className="w-4 h-4" />,
+    },
+    {
+      id: "appDownloads",
+      label: "App Downloads",
+      icon: <FiSmartphone className="w-4 h-4" />,
     },
   ];
 
@@ -1165,6 +1223,182 @@ const Settings: React.FC = () => {
                           Enable system alerts
                         </span>
                       </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* App Downloads Configuration */}
+            {activeTab === "appDownloads" && (
+              <div className="space-y-6">
+                <div>
+                  <h3
+                    className={`text-lg font-semibold mb-4 ${
+                      resolvedTheme === "dark" ? "text-white" : "text-gray-900"
+                    }`}
+                  >
+                    Mobile App Download Links
+                  </h3>
+                  <div className="grid grid-cols-1 gap-6">
+                    <div>
+                      <label
+                        className={`block text-sm font-medium mb-2 ${
+                          resolvedTheme === "dark"
+                            ? "text-gray-300"
+                            : "text-gray-700"
+                        }`}
+                      >
+                        Android App URL (Google Play Store)
+                      </label>
+                      <input
+                        type="url"
+                        value={settings.appDownloads.androidUrl}
+                        onChange={(e) =>
+                          updateSettings(
+                            "appDownloads",
+                            "androidUrl",
+                            e.target.value
+                          )
+                        }
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                          resolvedTheme === "dark"
+                            ? "bg-gray-700 border-gray-600 text-white"
+                            : "bg-white border-gray-300 text-gray-900"
+                        }`}
+                        placeholder="https://play.google.com/store/apps/details?id=com.yourapp"
+                      />
+                      <p
+                        className={`text-sm mt-1 ${
+                          resolvedTheme === "dark"
+                            ? "text-gray-400"
+                            : "text-gray-500"
+                        }`}
+                      >
+                        Full URL to your Android app on Google Play Store
+                      </p>
+                    </div>
+
+                    <div>
+                      <label
+                        className={`block text-sm font-medium mb-2 ${
+                          resolvedTheme === "dark"
+                            ? "text-gray-300"
+                            : "text-gray-700"
+                        }`}
+                      >
+                        iOS App URL (Apple App Store)
+                      </label>
+                      <input
+                        type="url"
+                        value={settings.appDownloads.iosUrl}
+                        onChange={(e) =>
+                          updateSettings(
+                            "appDownloads",
+                            "iosUrl",
+                            e.target.value
+                          )
+                        }
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                          resolvedTheme === "dark"
+                            ? "bg-gray-700 border-gray-600 text-white"
+                            : "bg-white border-gray-300 text-gray-900"
+                        }`}
+                        placeholder="https://apps.apple.com/app/your-app/id123456789"
+                      />
+                      <p
+                        className={`text-sm mt-1 ${
+                          resolvedTheme === "dark"
+                            ? "text-gray-400"
+                            : "text-gray-500"
+                        }`}
+                      >
+                        Full URL to your iOS app on Apple App Store
+                      </p>
+                    </div>
+
+                    <div className="space-y-4">
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={settings.appDownloads.enableAndroid}
+                          onChange={(e) =>
+                            updateSettings(
+                              "appDownloads",
+                              "enableAndroid",
+                              e.target.checked
+                            )
+                          }
+                          className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                        />
+                        <span
+                          className={`ml-2 text-sm ${
+                            resolvedTheme === "dark"
+                              ? "text-gray-300"
+                              : "text-gray-700"
+                          }`}
+                        >
+                          Show Android download button on landing page
+                        </span>
+                      </label>
+
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={settings.appDownloads.enableIos}
+                          onChange={(e) =>
+                            updateSettings(
+                              "appDownloads",
+                              "enableIos",
+                              e.target.checked
+                            )
+                          }
+                          className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                        />
+                        <span
+                          className={`ml-2 text-sm ${
+                            resolvedTheme === "dark"
+                              ? "text-gray-300"
+                              : "text-gray-700"
+                          }`}
+                        >
+                          Show iOS download button on landing page
+                        </span>
+                      </label>
+                    </div>
+
+                    <div
+                      className={`p-4 rounded-lg border ${
+                        resolvedTheme === "dark"
+                          ? "bg-blue-900 border-blue-700"
+                          : "bg-blue-50 border-blue-200"
+                      }`}
+                    >
+                      <div className="flex items-center">
+                        <FiSmartphone className="w-5 h-5 text-blue-600 mr-2" />
+                        <div>
+                          <h4
+                            className={`text-sm font-medium ${
+                              resolvedTheme === "dark"
+                                ? "text-blue-200"
+                                : "text-blue-800"
+                            }`}
+                          >
+                            App Store Guidelines
+                          </h4>
+                          <p
+                            className={`text-sm ${
+                              resolvedTheme === "dark"
+                                ? "text-blue-300"
+                                : "text-blue-700"
+                            }`}
+                          >
+                            Make sure your app URLs are correct and publicly
+                            accessible. Users will be redirected to these links
+                            when they click download buttons.
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

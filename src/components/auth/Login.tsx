@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { FiMail, FiLock, FiEye, FiEyeOff, FiAlertCircle } from "react-icons/fi";
+import {
+  FiMail,
+  FiLock,
+  FiEye,
+  FiEyeOff,
+  FiAlertCircle,
+  FiArrowLeft,
+} from "react-icons/fi";
 import { useAuth } from "../../contexts/AuthContext";
 
 const Login: React.FC = () => {
@@ -60,6 +67,15 @@ const Login: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 px-4 py-8">
+      {/* Back to Home Button */}
+      <a
+        href="/"
+        className="absolute top-6 left-6 flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+      >
+        <FiArrowLeft className="w-5 h-5 mr-2" />
+        Back to Home
+      </a>
+
       <div className="max-w-md w-full">
         {/* Logo/Brand */}
         <div className="text-center mb-8">

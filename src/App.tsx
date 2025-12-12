@@ -1,22 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 // Components
-import Login from './components/auth/Login';
-import Dashboard from './components/dashboard/Dashboard';
-import Users from './components/users/Users';
-import Messages from './components/messages/Messages';
-import Analytics from './components/analytics/Analytics';
-import Settings from './components/settings/Settings';
-import Sidebar from './components/layout/Sidebar';
-import Header from './components/layout/Header';
+import Login from "./components/auth/Login";
+import Landing from "./components/landing/Landing";
+import Dashboard from "./components/dashboard/Dashboard";
+import Users from "./components/users/Users";
+import Messages from "./components/messages/Messages";
+import Analytics from "./components/analytics/Analytics";
+import Settings from "./components/settings/Settings";
+import Sidebar from "./components/layout/Sidebar";
+import Header from "./components/layout/Header";
 
 // Context
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { ThemeProvider } from './contexts/ThemeContext';
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 
 // Styles
-import './app.css';
+import "./app.css";
 
 // Types
 interface User {
@@ -39,7 +40,13 @@ function AppContent() {
   }
 
   if (!user) {
-    return <Login />;
+    return (
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    );
   }
 
   return (
@@ -49,15 +56,15 @@ function AppContent() {
         <Header onMenuClick={() => setSidebarOpen(true)} />
         <main className="flex-1 bg-gray-50 overflow-auto">
           <div className="w-full h-full">
-          <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/users" element={<Users />} />
-            <Route path="/messages" element={<Messages />} />
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
+            <Routes>
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/users" element={<Users />} />
+              <Route path="/messages" element={<Messages />} />
+              <Route path="/analytics" element={<Analytics />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            </Routes>
           </div>
         </main>
       </div>
