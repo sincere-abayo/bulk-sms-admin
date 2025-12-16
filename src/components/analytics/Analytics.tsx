@@ -89,15 +89,14 @@ const Analytics: React.FC = () => {
       setLoading(true);
 
       // In a real app, this would be multiple API calls
-      const response = await fetch(
-        `http://localhost:4000/api/auth/admin/revenue`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("admin_token")}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const API_BASE_URL =
+        process.env.REACT_APP_API_URL || "http://localhost:4000";
+      const response = await fetch(`${API_BASE_URL}/api/auth/admin/revenue`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("admin_token")}`,
+          "Content-Type": "application/json",
+        },
+      });
 
       if (response.ok) {
         const data = await response.json();

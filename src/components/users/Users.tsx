@@ -66,8 +66,10 @@ const Users: React.FC = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
+      const API_BASE_URL =
+        process.env.REACT_APP_API_URL || "http://localhost:4000";
       const response = await fetch(
-        `http://localhost:4000/api/auth/admin/users?page=${currentPage}&limit=${usersPerPage}`,
+        `${API_BASE_URL}/api/auth/admin/users?page=${currentPage}&limit=${usersPerPage}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("admin_token")}`,
@@ -135,8 +137,10 @@ const Users: React.FC = () => {
 
   const fetchUserStats = async () => {
     try {
+      const API_BASE_URL =
+        process.env.REACT_APP_API_URL || "http://localhost:4000";
       const response = await fetch(
-        "http://localhost:4000/api/auth/admin/dashboard-stats",
+        `${API_BASE_URL}/api/auth/admin/dashboard-stats`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("admin_token")}`,

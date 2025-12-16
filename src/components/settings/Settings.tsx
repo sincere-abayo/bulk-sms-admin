@@ -132,8 +132,10 @@ const Settings: React.FC = () => {
   const loadSettings = async () => {
     setLoading(true);
     try {
+      const API_BASE_URL =
+        process.env.REACT_APP_API_URL || "http://localhost:4000";
       const response = await fetch(
-        "http://localhost:4000/api/auth/admin/app-settings"
+        `${API_BASE_URL}/api/auth/admin/app-settings`
       );
       if (response.ok) {
         const data = await response.json();
@@ -152,8 +154,10 @@ const Settings: React.FC = () => {
   const saveSettings = async () => {
     setSaving(true);
     try {
+      const API_BASE_URL =
+        process.env.REACT_APP_API_URL || "http://localhost:4000";
       const response = await fetch(
-        "http://localhost:4000/api/auth/admin/app-settings",
+        `${API_BASE_URL}/api/auth/admin/app-settings`,
         {
           method: "PUT",
           headers: {
